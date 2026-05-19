@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Joc de reflexos</title>
+
+<style>
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial;
+    background: #f2f2f2;
+    text-align: center;
+}
+
+h1 {
+    margin-top: 20px;
+}
+
+h2, h3 {
+    position: relative;
+    z-index: 10;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    background: #0095f6;
+    color: white;
+    cursor: pointer;
+    position: absolute;
+}
+
+#startBtn {
+    position: static;
+    margin-top: 20px;
+}
+
+#record {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 18px;
+}
+
+button:disabled {
+    background: gray;
+    cursor: not-allowed;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎮 Joc de reflexos</h1>
+
+<h2>
+Clica el botó i després elimina tots els botons el més ràpid possible.
+</h2>
+
+<button id="startBtn" onclick="startGame()">Començar</button>
+
+<h2 id="msg"></h2>
+<h3 id="record">🏆 Récord: --</h3>
+
+<script>
+let startTime;
+let clicked = 0;
+let total = 10;
+
+// cargar récord
+let record = localStorage.getItem("record");
+record = record ? parseFloat(record) : null;
+
+window.onload = function () {
+    updateRecordUI();
+};
+
+function updateRecordUI() {
+    document.getElementById("record").innerText =
+        record ? "🏆 Récord: " + record + " s" : "🏆 Récord: --";
+}
+
+function startGame() {
+    document.getElementById("startBtn").disabled = true;
+    document.getElementById("msg").innerText = "¡Clica tots els botons!";
+
+    clicked = 0;
+    startTime = Date.now();
+
+    // limpiar botones viejos
+    document.querySelectorAll("button:not(#startBtn)").forEach(b => b.remove());
+
+    for (let i = 0; i < total; i++) {
+        createButton();
+    }
+}
+
+function createButton() {
+    let btn = document.createElement("button");
+    btn.innerText = "CLICK";
+
+    let x = Math.random() * (window.innerWidth - 80);
+    let y = Math.random() * (window.innerHeight - 40);
+
+    btn.style.left = x + "px";
+    btn.style.top = y + "px";
+
+    btn.onclick = function () {
+        btn.remove();
+        clicked++;
+
+        if (clicked === total) {
+            let time = (Date.now() - startTime) / 1000;
+
+            document.getElementById("msg").innerText =
+                "🏁 Tiempo: " + time + " segundos";
+
+            // guardar récord
+            if (!record || time < record) {
+                record = time;
+                localStorage.setItem("record", record);
+            }
+
+            updateRecordUI();
+            document.getElementById("startBtn").disabled = false;
+        }
+    };
+
+    document.body.appendChild(btn);
+}
+</script>
+
+</body>
+</html>
